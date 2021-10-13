@@ -10,7 +10,7 @@ const STATUSES: { [key: string]: string } = {
 }
 
 class Bail {
-    status = 'Pending';
+    status: keyof typeof STATUSES;
     value: unknown;
     handlers: Handler[];
 
