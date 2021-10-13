@@ -93,11 +93,18 @@ class Bail {
         }, 0);
     }
 
+    /**
+     * Adding handler
+     * @param handler
+     */
     addHandler(handler: Handler) {
         this.handlers.push(handler);
         this.executeHandlers();
     }
 
+    /**
+     * Execute all handlers
+     */
     executeHandlers() {
         // Do nothing while pending.
         if (this.status === STATUSES.PENDING) {
@@ -118,6 +125,11 @@ class Bail {
         this.handlers = [];
     }
 
+    /**
+     * Then
+     * @param onFulfill
+     * @param onReject
+     */
     then(onFulfill?, onReject?) {
         return new Bail((res, rej) => {
             this.addHandler({
@@ -147,6 +159,10 @@ class Bail {
         })
     }
 
+    /**
+     * Catch
+     * @param onReject
+     */
     catch(onReject) {
         return this.then(null, onReject);
     }
