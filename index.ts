@@ -152,6 +152,7 @@ class Bail {
     }
 }
 
+// Some testing
 let promise1 = new Bail((resolve) => {
     setTimeout(() => resolve('done'), 1000);
 });
@@ -172,7 +173,7 @@ Bail.all([promise1, promise2]).then(([res1, res2]) => {
     console.log(res1);
     console.log(res2);
 }).catch(err => {
-    console.log(err) //?
+    console.log(err)
 })
 
 Bail.all([promise1, promise2, promise3]).then(([res1, res2]) => {
