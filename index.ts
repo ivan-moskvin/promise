@@ -9,20 +9,20 @@ const STATUSES: { [key: string]: string } = {
     REJECTED: 'REJECTED'
 }
 
-class Bail {
+class Future {
     status: keyof typeof STATUSES;
     value: unknown;
     handlers: Handler[];
 
-    static all(bailArr: Bail[]) {
-        return new Bail((res, rej) => {
+    static all(futuresArr: Future[]) {
+        return new Future((res, rej) => {
             const results = [];
-            bailArr.forEach((bail) => {
-                bail.then((value) => {
+            futuresArr.forEach((future) => {
+                future.then((value) => {
                     results.push(value);
 
                     // Resolve array of results only when all values resolved
-                    if (results.length === bailArr.length) {
+                    if (results.length === futuresArr.length) {
                         res(results);
                     }
                     // Reject on first error
@@ -31,10 +31,10 @@ class Bail {
         })
     }
 
-    static race(bailArr: Bail[]) {
-        return new Bail((res, rej) => {
-            bailArr.forEach((bail) => {
-                bail.then((value) => {
+    static race(futuresArr: Future[]) {
+        return new Future((res, rej) => {
+            futuresArr.forEach((future) => {
+                future.then((value) => {
                     // Resolve fastest one immediately
                     res(value);
                 }).catch(err => rej(err))
@@ -63,7 +63,7 @@ class Bail {
     }
 
     isThenable = (val) => {
-        return val instanceof Bail;
+        return val instanceof Future;
     }
 
     /**
@@ -131,7 +131,7 @@ class Bail {
      * @param onReject
      */
     then(onFulfill?, onReject?) {
-        return new Bail((res, rej) => {
+        return new Future((res, rej) => {
             this.addHandler({
                 onFullfill: (value) => {
                     if (!onFulfill) {
@@ -169,37 +169,37 @@ class Bail {
 }
 
 // Some testing
-let promise1 = new Bail((resolve) => {
+let promise1 = new Future((resolve) => {
     setTimeout(() => resolve('done'), 1000);
 });
-let promise2 = new Bail((resolve) => {
+let promise2 = new Future((resolve) => {
     setTimeout(() => resolve('done2'), 1000);
 });
-let promise3 = new Bail((resolve, reject) => {
+let promise3 = new Future((resolve, reject) => {
     setTimeout(() => reject('reject1'), 1000);
 });
-let promise4 = new Bail((resolve) => {
+let promise4 = new Future((resolve) => {
     setTimeout(() => resolve('racing fast done'), 500);
 });
-let promise5 = new Bail((resolve) => {
+let promise5 = new Future((resolve) => {
     setTimeout(() => resolve('racing long done'), 1000);
 });
 
-Bail.all([promise1, promise2]).then(([res1, res2]) => {
+Future.all([promise1, promise2]).then(([res1, res2]) => {
     console.log(res1);
     console.log(res2);
 }).catch(err => {
     console.log(err)
 })
 
-Bail.all([promise1, promise2, promise3]).then(([res1, res2]) => {
+Future.all([promise1, promise2, promise3]).then(([res1, res2]) => {
     console.log(res1);
     console.log(res2);
 }).catch(err => {
     console.log(err)
 })
 
-Bail.race([promise5, promise4]).then((res) => {
+Future.race([promise5, promise4]).then((res) => {
     console.log(res);
 })
 
